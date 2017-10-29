@@ -1,0 +1,23 @@
+self.entireScreenPIL.save('\screenshot.png')
+self.entireScreenPIL.save('tests/pppp.png')
+screen = self.entireScreenPIL
+screen.save('pasaka.jpeg','jpeg')
+
+from PIL import Image, ImageFilter, ImageGrab
+screen=ImageGrab.grab()
+screen.save('pasaka.jpeg','jpeg')
+f=open('c:\\1.jpeg','wb')
+data=f.read()
+f.close()
+
+
+def crop_image(self, original, left, top, right, bottom):
+    # original.show()
+    width, height = original.size  # Get dimensions
+    cropped_example = original.crop((left, top, right, bottom))
+    # cropped_example.show()
+    return cropped_example
+
+fd = coo[inspect.stack()[0][3]][self.tbl]
+pil_image = self.crop_image(self.entireScreenPIL, self.tlc[0] + fd[0], self.tlc[1] + fd[1], self.tlc[0] + fd[2],
+                                    self.tlc[1] + fd[3])

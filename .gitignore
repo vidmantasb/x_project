@@ -1,0 +1,18 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.idea
+*.log
+*.xml
+/.vs/Poker/v14
+*.
+/pics/*.png
+config.ini
+**/__pycache__
+*.pyc
+/log/screenshots/*
+screenshot_vbox.png
+sheet_not_found.png
+/log/*.png
+*.log.*
