@@ -72,13 +72,38 @@ class Table(object):
             template = Image.open(name)
             self.topLeftCorner_snowieadvice2 = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
         elif self.tbl[0:2] == 'PS':
+            if self.tbl == 'PS2':
+                name = "pics/" + self.tbl[0:2] + "/totalpot.png"
+                template = Image.open(name)
+                self.totalpot = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
+            elif self.tbl == 'PS':
+                name = "pics/" + self.tbl[0:2] + "/smalldollarsign3.png"
+                template = Image.open(name)
+                self.totalpot = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
+
+                name = "pics/" + self.tbl[0:2] + "/smalldollarsign2.png"
+                template = Image.open(name)
+                self.roundpot = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
+
+                name = "pics/" + self.tbl[0:2] + "/smalldollarsign4.png"
+                template = Image.open(name)
+                self.buttondollar = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
+
+                name = "pics/" + self.tbl[0:2] + "/smalldollarsign5.png"
+                template = Image.open(name)
+                self.buttondollarmyfund = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
+
+                name = "pics/" + self.tbl[0:2] + "/smalldollarsign6.png"
+                template = Image.open(name)
+                self.buttondollarplayerfund1 = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
+
+                name = "pics/" + self.tbl[0:2] + "/smalldollarsign7.png"
+                template = Image.open(name)
+                self.buttondollarplayerfund2 = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
+
             name = "pics/" + self.tbl[0:2] + "/zero_bot_pot.png"
             template = Image.open(name)
             self.zero_bot_pot = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
-
-            name = "pics/" + self.tbl[0:2] + "/totalpot.png"
-            template = Image.open(name)
-            self.totalpot = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
 
             name = "pics/" + self.tbl[0:2] + "/right_pot_2.png"
             template = Image.open(name)

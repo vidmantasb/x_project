@@ -2,9 +2,10 @@ from unittest import TestCase
 import numpy as np
 from testing.test_engine import init_table
 
+
 class TestTableScreenBased(TestCase):
     def test_game_number(self):
-        t, p, gui_signals, h, logger = init_table('tests/screenshots/1773793_PreFlop_0.png')
+        t, p, gui_signals, h, logger = init_table('testing/screenshots_ps_real_money/269141380_Flop_0.png', strategy='vid_ps_3_real_money')
         t.get_game_number_on_screen(h)
         self.assertEqual(h.game_number_on_screen,"15,547,039,153")
 

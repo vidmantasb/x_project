@@ -368,11 +368,43 @@ class TableScreenBased(Table):
                 self.gui_signals.signal_progressbar_increase.emit(1)
                 pil_image = self.crop_image(self.entireScreenPIL, self.tlc[0] + fd[0], self.tlc[1] + fd[1],
                                             self.tlc[0] + fd[2], self.tlc[1] + fd[3])
-                # pil_image.show()
-                value = self.get_ocr_float(pil_image, str(inspect.stack()[0][3]),replace_black_white=False)
-                if not value == '':
-                    if not (value).is_integer():
-                        value = float(str(value).replace('.', '')[0:(len(str(value)) - 1)])
+                if self.tbl == 'PS':
+                    img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
+                    left_count1, left_points1, left_bestfit1, left_minvalue1 = self.find_template_on_screen(
+                        self.buttondollarplayerfund1, img,
+                        0.02)
+                    left_count2, left_points2, left_bestfit2, left_minvalue2 = self.find_template_on_screen(
+                        self.buttondollarplayerfund2, img,
+                        0.02)
+                    if left_count1 > 0:
+                        left_points = left_points1
+                        number_image = self.crop_image(pil_image, left_points[0][0] + 8, 0, 90,
+                                                       pil_image.size[1] - 1)
+                        im = number_image.convert('RGBA')
+
+                        number_array = np.array(im)  # "data" is a height x width x 4 numpy array
+                        red, green, blue, alpha = number_array.T  # Temporarily unpack the bands for readability
+
+                        # Replace white with red... (leaves alpha values alone...)
+                        white_areas = (red > 60) & (blue > 60) & (green > 60)
+                        number_array[..., :-1][white_areas.T] = (255, 255, 255)  # Transpose back needed
+
+                        number_image = Image.fromarray(number_array)
+                        value = self.get_ocr_float(number_image, 'MyFunds')
+
+                    elif left_count2 > 0:
+                        left_points = left_points2
+                        number_image = self.crop_image(pil_image, left_points[0][0] + 8, 0, 90,
+                                                       pil_image.size[1] - 1)
+                        value = self.get_ocr_float(number_image, 'MyFunds')
+                    else:
+                        value = ''
+                else:
+                    value = self.get_ocr_float(pil_image, str(inspect.stack()[0][3]), replace_black_white=False)
+                    if not value == '':
+                        if not (value).is_integer():
+                            value = float(str(value).replace('.', '')[0:(len(str(value)) - 1)])
+
                 value = float(value) if value != '' else ''
                 self.other_players[i]['funds'] = value
         return True
@@ -385,7 +417,13 @@ class TableScreenBased(Table):
             pot_area_image = self.crop_image(self.entireScreenPIL, self.tlc[0] - 20 + fd[0], self.tlc[1] + fd[1] - 20,
                                              self.tlc[0] + fd[2] + 50, self.tlc[1] + fd[3] + 20)
             img = cv2.cvtColor(np.array(pot_area_image), cv2.COLOR_BGR2RGB)
-            if self.tbl == 'PS2':
+            if self.tbl == 'PS':
+                left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.roundpot, img,
+                                                                                                    0.01)
+                right_count, right_points, right_cbestfit, right_minvalue = self.find_template_on_screen(self.rightpot,
+                                                                                                         img, 0.01)
+                exist_pot = (right_count > 0) & (left_count > 0)
+            elif self.tbl == 'PS2':
                 left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.leftpot, img,
                                                                                                     0.01)
                 right_count, right_points, right_cbestfit, right_minvalue = self.find_template_on_screen(self.rightpot,
@@ -397,9 +435,14 @@ class TableScreenBased(Table):
                 exist_pot = count > 0
 
             if exist_pot:
-                if self.tbl == 'PS2':
+                if self.tbl == 'PS':
+                    pil_image = self.crop_image(pot_area_image, left_points[0][0] + 7, 15,
+                                                right_points[0][0] + 8, pot_area_image.size[1] - 15)
+                    method = func_dict[6]
+                    value = self.get_ocr_float(pil_image, str(inspect.stack()[0][3]), force_method=method)
+                elif self.tbl == 'PS2':
                     pil_image = self.crop_image(pot_area_image, left_points[0][0], 15,
-                                                    right_points[0][0] + 8, pot_area_image.size[1] - 15)
+                                                right_points[0][0] + 8, pot_area_image.size[1] - 15)
                     method = func_dict[6]
                     value = self.get_ocr_float(pil_image, str(inspect.stack()[0][3]), force_method=method)
                 else:
@@ -552,8 +595,25 @@ class TableScreenBased(Table):
         pil_image = self.crop_image(self.entireScreenPIL, self.tlc[0] + func_dict['x1'], self.tlc[1] + func_dict['y1'],
                                     self.tlc[0] + func_dict['x2'], self.tlc[1] + func_dict['y2'])
 
+        if self.tbl == 'PS':
+            img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
+            left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.totalpot, img,
+                                                                                                0.01)
+            right_count, right_points, right_cbestfit, right_minvalue = self.find_template_on_screen(self.rightpot,
+                                                                                                     img, 0.01)
+            count = (left_count > 0) & (right_count > 0)
 
-        if self.tbl =='PS2':
+            if count:
+                number_image = self.crop_image(pil_image, left_points[0][0] + 7, 2, right_points[0][0] + 4,
+                                               pil_image.size[1] - 7)
+                value = self.get_ocr_float(number_image, str(inspect.stack()[0][3]),
+                                           force_method=0)  # force_method was 1 before
+
+                if not (value).is_integer():
+                    value = float(value)
+            else:
+                value = ''
+        elif self.tbl =='PS2':
             img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
             left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.totalpot, img,
                                                                                                 0.01)
@@ -572,16 +632,16 @@ class TableScreenBased(Table):
         else:
             value = self.get_ocr_float(pil_image, 'TotalPotValue', force_method=1)
 
-        try:
-            if (not str(value)=='')&(self.tbl !='PS2'): #was not str(value)==''
-                value = float(re.findall(r'\d{1,2}\.\d{1,2}', str(value))[0])
-        except:
-            self.logger.warning("Total pot regex problem: " + str(value))
-            value = ''
-            self.logger.warning("unable to get pot value")
-            self.gui_signals.signal_status.emit("Unable to get pot value")
-            pil_image.save("pics/ErrPotValue.png")
-            self.totalPotValue = h.previousPot
+            try:
+                if (not str(value)=='')&(self.tbl !='PS2'): #was not str(value)==''
+                    value = float(re.findall(r'\d{1,2}\.\d{1,2}', str(value))[0])
+            except:
+                self.logger.warning("Total pot regex problem: " + str(value))
+                value = ''
+                self.logger.warning("unable to get pot value")
+                self.gui_signals.signal_status.emit("Unable to get pot value")
+                pil_image.save("pics/ErrPotValue.png")
+                self.totalPotValue = h.previousPot
 
         if value == '':
             self.totalPotValue = 0
@@ -599,7 +659,21 @@ class TableScreenBased(Table):
         pil_image = self.crop_image(self.entireScreenPIL, self.tlc[0] + func_dict['x1'], self.tlc[1] + func_dict['y1'],
                                     self.tlc[0] + func_dict['x2'], self.tlc[1] + func_dict['y2'])
 
-        if self.tbl =='PS2':
+        if self.tbl == 'PS':
+            img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
+            left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.roundpot, img,
+                                                                                                0.01)
+            if left_count:
+                number_image = self.crop_image(pil_image, left_points[0][0] + 7, 3, 140,
+                                               pil_image.size[1] - 2)
+                value = self.get_ocr_float(number_image, str(inspect.stack()[0][3]),
+                                           force_method=0)  # force_method was 1 before
+
+                if not (value).is_integer():
+                    value = float(value)
+            else:
+                value = ''
+        elif self.tbl =='PS2':
             value = self.get_ocr_float(pil_image, 'RoundPotValue', force_method=0) # force_method was 1 before
         else:
             value = self.get_ocr_float(pil_image, 'RoundPotValue', force_method=1)
@@ -630,27 +704,35 @@ class TableScreenBased(Table):
         pil_image = self.crop_image(self.entireScreenPIL, self.tlc[0] + func_dict['x1'], self.tlc[1] + func_dict['y1'],
                                     self.tlc[0] + func_dict['x2'], self.tlc[1] + func_dict['y2'])
 
-        if p.selected_strategy['pokerSite'][0:2] == 'PP':
+        if self.tbl[0:2] == 'PP':
             basewidth = 200
             wpercent = (basewidth / float(pil_image.size[0]))
             hsize = int((float(pil_image.size[1]) * float(wpercent)))
             pil_image = pil_image.resize((basewidth, hsize), Image.ANTIALIAS)
+        elif self.tbl == 'PS':
+            img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
+            left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.buttondollarmyfund,
+                                                                                                img,
+                                                                                                0.01)
+            if left_count:
+                number_image = self.crop_image(pil_image, left_points[0][0] + 8, 0, 90,
+                                               pil_image.size[1] - 1)
 
-        pil_image_filtered = pil_image.filter(ImageFilter.ModeFilter)
-        pil_image_filtered2 = pil_image.filter(ImageFilter.MedianFilter)
+                self.myFunds = self.get_ocr_float(number_image, 'MyFunds')
+                if not (self.myFunds).is_integer():
+                    self.myFunds = float(self.myFunds)
+            else:
+                self.myFunds = ''
+        else:
+            pil_image_filtered = pil_image.filter(ImageFilter.ModeFilter)
+            pil_image_filtered2 = pil_image.filter(ImageFilter.MedianFilter)
+            self.myFunds = self.get_ocr_float(pil_image, 'MyFunds')
+            if self.myFunds == '':
+                self.myFunds = self.get_ocr_float(pil_image_filtered, 'MyFunds')
+            if self.myFunds == '':
+                self.myFunds = self.get_ocr_float(pil_image_filtered2, 'MyFunds')
 
         self.myFundsError = False
-        try:
-            pil_image.save("pics/myFunds.png")
-        except:
-            self.logger.info("Could not save myFunds.png")
-
-        self.myFunds = self.get_ocr_float(pil_image, 'MyFunds')
-        if self.myFunds == '':
-            self.myFunds = self.get_ocr_float(pil_image_filtered, 'MyFunds')
-        if self.myFunds == '':
-            self.myFunds = self.get_ocr_float(pil_image_filtered2, 'MyFunds')
-
         if self.myFunds == '':
             self.myFundsError = True
             self.myFunds = float(h.myFundsHistory[-1])
@@ -671,7 +753,23 @@ class TableScreenBased(Table):
                                     self.tlc[0] + func_dict['x2'], self.tlc[1] + func_dict['y2'])
 
         if not self.checkButton:
-            self.currentCallValue = self.get_ocr_float(pil_image, 'CallValue')
+            if self.tbl == 'PS':
+                img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
+                left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.buttondollar,
+                                                                                                    img,
+                                                                                                    0.01)
+                if left_count:
+                    number_image = self.crop_image(pil_image, left_points[0][0] + 8, 0, 90,
+                                                   pil_image.size[1] - 1)
+                    self.currentCallValue = self.get_ocr_float(number_image, str(inspect.stack()[0][3]),
+                                                               force_method=0)  # force_method was 1 before
+
+                    if not (self.currentCallValue).is_integer():
+                        self.currentCallValue = float(self.currentCallValue)
+                else:
+                    self.currentCallValue = ''
+            else:
+                self.currentCallValue = self.get_ocr_float(pil_image, 'CallValue')
         elif self.checkButton:
             self.currentCallValue = 0
 
@@ -697,7 +795,22 @@ class TableScreenBased(Table):
         pil_image = self.crop_image(self.entireScreenPIL, self.tlc[0] + func_dict['x1'], self.tlc[1] + func_dict['y1'],
                                     self.tlc[0] + func_dict['x2'], self.tlc[1] + func_dict['y2'])
 
-        self.currentBetValue = self.get_ocr_float(pil_image, 'BetValue')
+        if self.tbl == 'PS':
+            img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
+            left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.buttondollar, img,
+                                                                                                0.01)
+            if left_count:
+                number_image = self.crop_image(pil_image, left_points[0][0] + 8, 0, 90,
+                                               pil_image.size[1] - 1)
+                self.currentBetValue = self.get_ocr_float(number_image, str(inspect.stack()[0][3]),
+                                           force_method=0)  # force_method was 1 before
+
+                if not (self.currentBetValue).is_integer():
+                    self.currentBetValue = float(self.currentBetValue)
+            else:
+                self.currentBetValue = ''
+        else:
+            self.currentBetValue = self.get_ocr_float(pil_image, 'BetValue')
 
         if self.currentCallValue == '' and p.selected_strategy['pokerSite'][0:2] == "PS" and self.allInCallButton_found:
             self.logger.warning("Taking call value from button on the right")

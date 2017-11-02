@@ -15,7 +15,7 @@ from decisionmaker.montecarlo_python import run_montecarlo_wrapper
 
 #t, p, gui_signals, h, logger = init_table('testing/screenshots/751235173_PreFlop_0.png')
 #t, p, gui_signals, h, logger = init_table('testing/screenshots/ps_7.png')
-t, p, gui_signals, h, logger = init_table('testing/screenshots/ps_20.png')
+t, p, gui_signals, h, logger = init_table('testing/screenshots_ps_real_money/269141380_Flop_0.png', strategy='vid_ps_3_real_money')
 #t, p, gui_signals, h, logger = init_table('pics/old/error.png')
 
 

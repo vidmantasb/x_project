@@ -145,7 +145,7 @@ class UIActionAndSignals(QObject):
             "RiverMinBetEquity": 100,
             "maxPotAdjustment": 100
         }
-        self.pokersite_types = ['PP', 'PS2', 'SN']
+        self.pokersite_types = ['PP', 'PS', 'PS2', 'SN']
 
         self.ui = ui_main_window
         self.progressbar_value = 0

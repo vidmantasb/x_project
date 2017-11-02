@@ -10,7 +10,7 @@ from PIL import Image
 from tools.mongo_manager import GameLogger
 from tools.mongo_manager import StrategyHandler
 from tools.mongo_manager import UpdateChecker
-
+from tools.mouse_mover import *
 from decisionmaker.current_hand_memory import History, CurrentHandPreflopState
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -32,6 +32,7 @@ def init_table(file,round_number=0, strategy='vid_ps_2'):
     preflop_url = c['preflop_url']
     h.preflop_sheet = pd.read_excel(preflop_url, sheetname=None)
     game_logger = GameLogger()
+    mouse = MouseMoverTableBased(p.selected_strategy['pokerSite'])
     t = main.TableScreenBased(p,gui_signals,game_logger,0.0)
     t.entireScreenPIL = Image.open(file)
     t.get_top_left_corner(p)
@@ -52,9 +53,13 @@ def init_table(file,round_number=0, strategy='vid_ps_2'):
     t.check_for_allincall()
     t.get_current_call_value(p)
     t.get_current_bet_value(p)
+    t.check_fast_fold(h, p, mouse)
     p = MagicMock()
     gui_signals = MagicMock()
     t.get_round_pot_value(h)
+    t.get_bot_pot(p)
+    t.check_for_button()
+    t.get_lost_everything(h, t, p, gui_signals)
     t.totalPotValue = 0.5
     t.abs_equity = 0.5
     t.equity = 0.5
