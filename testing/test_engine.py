@@ -60,8 +60,9 @@ def init_table(file,round_number=0, strategy='vid_ps_2'):
     t.get_bot_pot(p)
     t.check_for_button()
     t.get_lost_everything(h, t, p, gui_signals)
-    t.totalPotValue = 0.5
-    t.abs_equity = 0.5
-    t.equity = 0.5
+    t.get_total_pot_value(h)
+    #t.totalPotValue = 0.5
+    #t.abs_equity = 0.5
+    #t.equity = 0.5
     return t,p,gui_signals,h,logger
 

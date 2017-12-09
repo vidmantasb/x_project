@@ -7,8 +7,8 @@ from testing.test_engine import init_table
 from PIL import Image, ImageFilter
 
 #FOR TOTAL POT VALUE
-
-t, p, gui_signals, h, logger = init_table('testing/screenshots_ps_real_money/269141380_Flop_0.png',strategy='vid_ps_3_real_money')
+t, p, gui_signals, h, logger = init_table('testing/screenshots_ps_real_money/9455534_PreFlop_1.png', strategy='vid_ps_3_real_money')
+#t, p, gui_signals, h, logger = init_table('testing/screenshots_ps_real_money/269141380_Flop_0.png',strategy='vid_ps_3_real_money')
 #t, p, gui_signals, h, logger = init_table('testing/screenshots_ps_real_money/322098970_PreFlop_0.png', strategy='vid_ps_3_real_money')
 func_dict = t.coo['get_total_pot_value'][t.tbl]
 #t.gui_signals.signal_progressbar_increase.emit(5)
@@ -246,8 +246,18 @@ if t.tbl[0:2] == 'PP':
     pil_image = pil_image.resize((basewidth, hsize), Image.ANTIALIAS)
 elif t.tbl == 'PS':
     img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
-    left_count, left_points, left_bestfit, left_minvalue = t.find_template_on_screen(t.buttondollarmyfund, img,
+    left_count1, left_points1, left_bestfit1, left_minvalue1 = t.find_template_on_screen(t.buttondollarmyfund, img,
                                                                                      0.01)
+    left_count2, left_points2, left_bestfit2, left_minvalue2 = t.find_template_on_screen(t.buttondollarmyfund1, img,
+                                                                                     0.01)
+
+    if left_count1>0:
+        left_count = left_count1
+        left_points = left_points1
+    elif left_count2>0:
+        left_count = left_count2
+        left_points = left_points2
+
     if left_count:
         number_image = t.crop_image(pil_image, left_points[0][0] + 8, 0, 90,
                                     pil_image.size[1] - 1)
