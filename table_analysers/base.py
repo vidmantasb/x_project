@@ -93,6 +93,10 @@ class Table(object):
                 template = Image.open(name)
                 self.buttondollarmyfund = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
 
+                name = "pics/" + self.tbl[0:2] + "/smalldollarsign8.png"
+                template = Image.open(name)
+                self.buttondollarmyfund1 = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
+
                 name = "pics/" + self.tbl[0:2] + "/smalldollarsign6.png"
                 template = Image.open(name)
                 self.buttondollarplayerfund1 = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)

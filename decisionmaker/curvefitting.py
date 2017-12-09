@@ -76,8 +76,8 @@ class Curvefitting(object):
 
 
 if __name__ == '__main__':
-    smallBlind = 0.02
-    bigBlind = 0.04
+    #smallBlind = 0.02
+    #bigBlind = 0.04
     smallBlind = 5000
     bigBlind = 10000
     maxValue = 2

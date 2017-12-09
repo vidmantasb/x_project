@@ -711,9 +711,19 @@ class TableScreenBased(Table):
             pil_image = pil_image.resize((basewidth, hsize), Image.ANTIALIAS)
         elif self.tbl == 'PS':
             img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
-            left_count, left_points, left_bestfit, left_minvalue = self.find_template_on_screen(self.buttondollarmyfund,
-                                                                                                img,
-                                                                                                0.01)
+            left_count1, left_points1, left_bestfit1, left_minvalue1 = self.find_template_on_screen(self.buttondollarmyfund,
+                                                                                                 img,
+                                                                                                 0.01)
+            left_count2, left_points2, left_bestfit2, left_minvalue2 = self.find_template_on_screen(self.buttondollarmyfund1,
+                                                                                                 img,
+                                                                                                 0.01)
+            if left_count1 > 0:
+                left_count = left_count1
+                left_points = left_points1
+            elif left_count2 > 0:
+                left_count = left_count2
+                left_points = left_points2
+
             if left_count:
                 number_image = self.crop_image(pil_image, left_points[0][0] + 8, 0, 90,
                                                pil_image.size[1] - 1)
@@ -844,7 +854,7 @@ class TableScreenBased(Table):
 
     def get_lost_everything(self, h, t, p, gui_signals):
         if self.tbl == 'SN': return True
-        if self.tbl == 'PS2':
+        if self.tbl[0:2] == 'PS':
             func_dict = self.coo['check_for_imback'][self.tbl]
             pil_image = self.crop_image(self.entireScreenPIL, self.tlc[0] + func_dict['x1'],
                                         self.tlc[1] + func_dict['y1'],
@@ -866,6 +876,7 @@ class TableScreenBased(Table):
             img = cv2.cvtColor(np.array(pil_image), cv2.COLOR_BGR2RGB)
             count, points, bestfit, _ = self.find_template_on_screen(self.lostEverything, img, 0.001)
             self.lost_everything_found = count > 0
+
         if self.lost_everything_found:
             h.lastGameID = str(h.GameID)
             self.myFundsChange = float(0) - float(h.myFundsHistory[-1])
